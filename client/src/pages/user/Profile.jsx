@@ -113,8 +113,8 @@ const Profile = () => {
       </Grid>
 
       <Footer
-        title="Footer"
-        description="Something here to give the footer a purpose!"
+        title="PgLookUp"
+        description="All rights reserved"
       />
 
      {/*  {info ? (

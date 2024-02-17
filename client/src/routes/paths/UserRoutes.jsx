@@ -5,6 +5,8 @@ import AuthGuard from "../AuthGuard";
 
 const Profile = Loadable(lazy(() => import("@pages/user/Profile")));
 const Dashboard = Loadable(lazy(() => import("@pages/user/Dashboard")));
+const Listings = Loadable(lazy(() => import('@pages/user/Listings')))
+
 
 const UserRoutes = {
   element: (
@@ -21,6 +23,10 @@ const UserRoutes = {
       path: "user/profile",
       element: <Profile />,
     },
+    {
+      path: "user/listings",
+      element: <Listings />,
+    }
   ],
 };
 

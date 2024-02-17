@@ -18,6 +18,7 @@ import {
   BRAND_NAME,
 } from "components/data/constrain";
 import useAuth from "@hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const AppBarStyle = styled(AppBar)({
   boxShadow: "none",
@@ -46,7 +47,7 @@ const settings = [
 function Header() {
   const { logout } = useAuth();
   const [anchorElUser, setAnchorElUser] = useState(null);
-
+  const nav = useNavigate()
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -57,18 +58,14 @@ function Header() {
 
   
   const handleListPropertyClick = () => {
-
+    nav('/user/listings')
   }
 
   const handleSelectCityClick = () => {
 
   }
 
-  const handleContactUsClick = () => {
 
-  }
-
-  const handleSocialMediaClick = () => {}
   const handleOurOfficesClick = () => {}
   return (
 <AppBarStyle>
@@ -82,8 +79,6 @@ function Header() {
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Button color="inherit" onClick={handleListPropertyClick}>List Your Property</Button>
         <Button color="inherit" onClick={handleSelectCityClick}>Select Your City</Button>
-        <Button color="inherit" onClick={handleContactUsClick}>Contact Us</Button>
-        <Button color="inherit" onClick={handleSocialMediaClick}>Social Media</Button>
         <Button color="inherit" onClick={handleOurOfficesClick}>Our Offices</Button>
       </Box>
 
