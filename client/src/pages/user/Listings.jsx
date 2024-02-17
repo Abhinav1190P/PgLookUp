@@ -9,6 +9,65 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
+import TextField from '@mui/material/TextField';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepButton from '@mui/material/StepButton';
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as Yup from 'yup';
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const formSchema = Yup.object().shape({
+    type: Yup.string().required("Type is required"),
+    name: Yup.string().required("Name is required"),
+    location: Yup.object().shape({
+        address: Yup.string().required("Address is required"),
+        city: Yup.string().required("City is required"),
+    }),
+    photos: Yup.array().of(Yup.string()), // Assuming it's an array of strings
+    rent: Yup.object().shape({
+        single: Yup.number().required("Single rent is required"),
+        double: Yup.number().required("Double rent is required"),
+        triple: Yup.number().required("Triple rent is required"),
+    }),
+    gender: Yup.string().required("Gender is required"),
+    owner: Yup.object().shape({
+        name: Yup.string().required("Owner name is required"),
+        contact: Yup.string().required("Owner contact is required"),
+    }),
+    facilities: Yup.array().of(Yup.string()),
+    description: Yup.string(),
+    ratings: Yup.object().shape({
+        overall: Yup.number().min(0).max(5),
+        cleanliness: Yup.number().min(0).max(5),
+        safety: Yup.number().min(0).max(5),
+    }),
+});
+
+const defaultValues = {
+    type: '',
+    name: '',
+    location: {
+        address: '',
+        city: ''
+    },
+    rent: {
+        single: '',
+        double: '',
+        triple: ''
+    },
+    gender: '',
+    owner: {
+        name: '',
+        contact: ''
+    },
+    description: '',
+    facility_type: ''
+};
+
+
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
     boxShadow: 'none',
@@ -37,14 +96,107 @@ const style = {
     transform: 'translate(-50%, -50%)',
     width: 400,
     bgcolor: 'background.paper',
-    border: '2px solid #000',
     boxShadow: 24,
     pt: 2,
     px: 4,
     pb: 3,
 };
+const steps = ['Property Details', 'Upload Pictures'];
 
 export default function Listings() {
+    const [activeStep, setActiveStep] = React.useState(0);
+    const [completed, setCompleted] = React.useState({});
+    const {
+        control,
+        formState: { errors },
+        handleSubmit,
+        reset,
+    } = useForm({
+        resolver: yupResolver(formSchema),
+        defaultValues,
+        mode:'onChange'
+    });
+    const totalSteps = () => {
+        return steps.length;
+    };
+    console.log(errors)
+
+    const completedSteps = () => {
+        return Object.keys(completed).length;
+    };
+
+    const isLastStep = () => {
+        return activeStep === totalSteps() - 1;
+    };
+
+    const allStepsCompleted = () => {
+        return completedSteps() === totalSteps();
+    };
+
+    const handleNext = () => {
+        const newActiveStep =
+            isLastStep() && !allStepsCompleted()
+                ? // It's the last step, but not all steps have been completed,
+                // find the first step that has been completed
+                steps.findIndex((step, i) => !(i in completed))
+                : activeStep + 1;
+        setActiveStep(newActiveStep);
+    };
+
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+
+    const handleStep = (step) => () => {
+        setActiveStep(step);
+    };
+
+    const handleComplete = () => {
+        const newCompleted = completed;
+        newCompleted[activeStep] = true;
+        setCompleted(newCompleted);
+        handleNext();
+    };
+
+    const handleReset = () => {
+        setActiveStep(0);
+        setCompleted({});
+    };
+
+    const onSubmit = () => {
+
+    }
+
+
+    const [propertyFormData, setPropertyFormData] = useState({
+        type: '',
+        name: '',
+        location: {
+            address: '',
+            city: ''
+        },
+        photos: [],
+        rent: {
+            single: 0,
+            double: 0,
+            triple: 0
+        },
+        gender: '',
+        owner: {
+            name: '',
+            contact: ''
+        },
+        facility_type: '',
+        description: '',
+        ratings: {
+            overall: 0,
+            cleanliness: 0,
+            safety: 0
+        }
+    });
+
+
+
     const [gender, setGender] = useState('');
     const [accommodationType, setAccommodationType] = useState('');
     const [sharing, setSharing] = useState('');
@@ -62,7 +214,227 @@ export default function Listings() {
         setOpen(false);
     };
 
+    const PropertyForm = (
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <Grid container spacing={2}>
+                <Grid item xs={6}>
+                    <Controller
+                        name="type"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel style={{ marginTop: '-5px' }}>Type</InputLabel>
+                                <Select
+                                    {...field}
+                                    labelId="type-label"
+                                    id="type"
+                                    size='small'
+                                >
+                                    <MenuItem value="hostel">Hostel</MenuItem>
+                                    <MenuItem value="pg">PG</MenuItem>
+                                    <MenuItem value="flat">Flat</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <Controller
+                        name="name"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Name"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <Controller
+                        name="location.address"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Address"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <Controller
+                        name="location.city"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="City"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <Controller
+                        name="rent.single"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Rent (Single)"
+                                type="number"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <Controller
+                        name="rent.double"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Rent (Double)"
+                                type="number"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <Controller
+                        name="rent.triple"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Rent (Triple)"
+                                type="number"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <Controller
+                        name="gender"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel style={{ marginTop: '-5px' }}>Gender</InputLabel>
+                                <Select
+                                    {...field}
+                                    labelId="gender-label"
+                                    id="gender"
+                                    size='small'
+                                >
+                                    <MenuItem value="male">Male</MenuItem>
+                                    <MenuItem value="female">Female</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <Controller
+                        name="owner.name"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Owner Name"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <Controller
+                        name="owner.contact"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Owner Contact"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <Controller
+                        name="description"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                multiline
+                                rows={4}
+                                label="Description"
+                                size='small'
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <Controller
+                        name="facility_type"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel style={{ marginTop: '-5px' }}>Facility Type</InputLabel>
+                                <Select
+                                    {...field}
+                                    labelId="facility-label"
+                                    id="facility"
+                                    size='small'
+                                >
+                                    <MenuItem value="Regular">Regular</MenuItem>
+                                    <MenuItem value="Cooler">Female</MenuItem>
+                                    <MenuItem value="AC">AC</MenuItem>
+                                    <MenuItem value="Balcony">Balcony</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Grid>
+            </Grid>
+            <Button type="submit">Submit</Button>
+        </form>
+    )
 
+    const UploadPhotos = (
+        <Box>
+            Upload photos
+        </Box>
+    )
+
+    const StepComponents = [PropertyForm, UploadPhotos];
     return (
         <Grid container spacing={2}>
             <Grid item xs={6} md={8}>
@@ -153,6 +525,7 @@ export default function Listings() {
                                 <MenuItem value="food">Food</MenuItem>
                             </Select>
                         </FormControl>
+
                     </Stack>
                 </Item>
             </Grid>
@@ -168,12 +541,33 @@ export default function Listings() {
                 aria-labelledby="child-modal-title"
                 aria-describedby="child-modal-description"
             >
-                <Box sx={{ ...style, width: 200 }}>
-                    <h2 id="child-modal-title">Text in a child modal</h2>
-                    <p id="child-modal-description">
-                        Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                    </p>
-                    <Button onClick={handleClose}>Close Child Modal</Button>
+                <Box sx={{ ...style, width: 800 }}>
+                    <h2 id="property-modal-title">Add Property</h2>
+                    <Stepper style={{ paddingBottom: '20px' }} nonLinear activeStep={activeStep}>
+                        {steps.map((label, index) => (
+                            <Step key={label} completed={completed[index]}>
+                                <StepButton color="inherit" onClick={handleStep(index)}>
+                                    {label}
+                                </StepButton>
+                            </Step>
+                        ))}
+                    </Stepper>
+                    {allStepsCompleted() ? (
+                        <React.Fragment>
+                            <Typography sx={{ mt: 2, mb: 1 }}>
+                                All steps completed - you&apos;re finished
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                                <Box sx={{ flex: '1 1 auto' }} />
+                                <Button onClick={handleReset}>Reset</Button>
+                            </Box>
+                        </React.Fragment>
+                    ) : (
+                        StepComponents[activeStep]
+                    )}
+
+                    <Button onClick={handleClose}>Close</Button>
+
                 </Box>
             </Modal>
         </Grid>

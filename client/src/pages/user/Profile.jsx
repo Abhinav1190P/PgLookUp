@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { makeStyles } from '@mui/styles'
+import { makeStyles } from "@mui/material";
 import useAxiosPrivate from "@hooks/useAxiosPrivate";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
