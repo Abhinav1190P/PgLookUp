@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { makeStyles } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import useAxiosPrivate from "@hooks/useAxiosPrivate";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -117,7 +117,7 @@ const Profile = () => {
         description="All rights reserved"
       />
 
-     {/*  {info ? (
+      {/*  {info ? (
         <>
           <Typography>Name: {info.name}</Typography>
           <Typography>Email: {info.email}</Typography>

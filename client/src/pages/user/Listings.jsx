@@ -13,11 +13,10 @@ import TextField from '@mui/material/TextField';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as Yup from 'yup';
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { DropzoneArea } from 'material-ui-dropzone';
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required("Type is required"),
@@ -26,19 +25,27 @@ const formSchema = Yup.object().shape({
         address: Yup.string().required("Address is required"),
         city: Yup.string().required("City is required"),
     }),
-    photos: Yup.array().of(Yup.string()), // Assuming it's an array of strings
+    photos: Yup.array().of(Yup.string()),
     rent: Yup.object().shape({
-        single: Yup.number().required("Single rent is required"),
-        double: Yup.number().required("Double rent is required"),
-        triple: Yup.number().required("Triple rent is required"),
+        single: Yup.number()
+            .typeError("Rent (Single) must be a number")
+            .required("Rent (Single) is required"),
+        double: Yup.number()
+            .typeError("Rent (Double) must be a number")
+            .required("Rent (Double) is required"),
+        triple: Yup.number()
+            .typeError("Rent (Triple) must be a number")
+            .required("Rent (Triple) is required"),
     }),
     gender: Yup.string().required("Gender is required"),
     owner: Yup.object().shape({
         name: Yup.string().required("Owner name is required"),
-        contact: Yup.string().required("Owner contact is required"),
+        contact: Yup.string()
+            .required("Owner contact is required")
+            .matches(/^\d{10}$/, "Owner contact must be a 10-digit number"),
     }),
-    facilities: Yup.array().of(Yup.string()),
-    description: Yup.string(),
+    facility_type: Yup.string().required("Facility type is required"),
+    description: Yup.string().required("Some description is required"),
     ratings: Yup.object().shape({
         overall: Yup.number().min(0).max(5),
         cleanliness: Yup.number().min(0).max(5),
@@ -114,7 +121,7 @@ export default function Listings() {
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues,
-        mode:'onChange'
+        mode: 'onChange'
     });
     const totalSteps = () => {
         return steps.length;
@@ -230,6 +237,8 @@ export default function Listings() {
                                     labelId="type-label"
                                     id="type"
                                     size='small'
+                                    error={!!errors.type}
+                                    helperText={errors?.type?.message}
                                 >
                                     <MenuItem value="hostel">Hostel</MenuItem>
                                     <MenuItem value="pg">PG</MenuItem>
@@ -250,6 +259,9 @@ export default function Listings() {
                                 fullWidth
                                 label="Name"
                                 size='small'
+                                error={!!errors.name}
+                                helperText={errors?.name?.message}
+
                             />
                         )}
                     />
@@ -265,6 +277,8 @@ export default function Listings() {
                                 fullWidth
                                 label="Address"
                                 size='small'
+                                error={!!errors?.location?.address}
+                                helperText={errors?.location?.address?.message}
                             />
                         )}
                     />
@@ -280,6 +294,8 @@ export default function Listings() {
                                 fullWidth
                                 label="City"
                                 size='small'
+                                error={!!errors?.location?.city}
+                                helperText={errors?.location?.city?.message}
                             />
                         )}
                     />
@@ -296,6 +312,8 @@ export default function Listings() {
                                 label="Rent (Single)"
                                 type="number"
                                 size='small'
+                                error={!!errors?.rent?.single}
+                                helperText={errors?.rent?.single?.message}
                             />
                         )}
                     />
@@ -312,6 +330,8 @@ export default function Listings() {
                                 label="Rent (Double)"
                                 type="number"
                                 size='small'
+                                error={!!errors?.rent?.double}
+                                helperText={errors?.rent?.double?.message}
                             />
                         )}
                     />
@@ -328,6 +348,8 @@ export default function Listings() {
                                 label="Rent (Triple)"
                                 type="number"
                                 size='small'
+                                error={!!errors?.rent?.triple}
+                                helperText={errors?.rent?.triple?.message}
                             />
                         )}
                     />
@@ -345,6 +367,8 @@ export default function Listings() {
                                     labelId="gender-label"
                                     id="gender"
                                     size='small'
+                                    error={!!errors?.gender}
+                                    helperText={errors?.gender?.message}
                                 >
                                     <MenuItem value="male">Male</MenuItem>
                                     <MenuItem value="female">Female</MenuItem>
@@ -364,11 +388,13 @@ export default function Listings() {
                                 fullWidth
                                 label="Owner Name"
                                 size='small'
+                                error={!!errors?.owner?.name}
+                                helperText={errors?.owner?.name?.message}
                             />
                         )}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={6}>
                     <Controller
                         name="owner.contact"
                         control={control}
@@ -379,23 +405,8 @@ export default function Listings() {
                                 fullWidth
                                 label="Owner Contact"
                                 size='small'
-                            />
-                        )}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <Controller
-                        name="description"
-                        control={control}
-                        defaultValue=""
-                        render={({ field }) => (
-                            <TextField
-                                {...field}
-                                fullWidth
-                                multiline
-                                rows={4}
-                                label="Description"
-                                size='small'
+                                error={!!errors?.owner?.contact}
+                                helperText={errors?.owner?.contact?.message}
                             />
                         )}
                     />
@@ -413,6 +424,8 @@ export default function Listings() {
                                     labelId="facility-label"
                                     id="facility"
                                     size='small'
+                                    error={!!errors?.facility_type}
+                                    helperText={errors?.facility_type?.message}
                                 >
                                     <MenuItem value="Regular">Regular</MenuItem>
                                     <MenuItem value="Cooler">Female</MenuItem>
@@ -423,14 +436,43 @@ export default function Listings() {
                         )}
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <Controller
+                        name="description"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                multiline
+                                rows={4}
+                                label="Description"
+                                size='small'
+                                error={!!errors?.description}
+                                helperText={errors?.description?.message}
+                            />
+                        )}
+                    />
+                </Grid>
+                {activeStep === steps.length ? (<Grid item xs={2}>  <Button variant='contained' type="submit">Submit</Button></Grid>) : (
+                    <Grid item xs={2}>  <Button variant='contained' onClick={() => { /* errors ? null :  */handleNext() }} type="submit">Next</Button></Grid>
+                )}
+
+                <Grid item xs={1}><Button onClick={handleClose}>Close</Button></Grid>
             </Grid>
-            <Button type="submit">Submit</Button>
+
         </form>
     )
 
     const UploadPhotos = (
         <Box>
-            Upload photos
+            <DropzoneArea
+                acceptedFiles={['image/jpeg', 'image/png']}
+                maxFileSize={3000000} // 3 MB in bytes
+                filesLimit={4}
+                dropzoneText={"Drag and drop an image here or click"}
+                onChange={(files) => console.log('Files:', files)} />
         </Box>
     )
 
@@ -566,7 +608,7 @@ export default function Listings() {
                         StepComponents[activeStep]
                     )}
 
-                    <Button onClick={handleClose}>Close</Button>
+
 
                 </Box>
             </Modal>
