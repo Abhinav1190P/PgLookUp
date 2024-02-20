@@ -3,7 +3,7 @@ const { model, Schema } = require("mongoose");
 const defaultPropertyTypes = ["Hostel", "PG", "Flat"];
 const defaultGenders = ["Boys", "Girls", "Boys&Girls"];
 
-const propertySchema = new mongoose.Schema({
+const propertySchema = new Schema({
     type: {
       type: String,
       enum: defaultPropertyTypes
@@ -27,7 +27,7 @@ const propertySchema = new mongoose.Schema({
       name: String,
       contact: String
     },
-    facilities: [String], 
+    facility_type: String, 
     description: String,
     ratings: {
       overall: {

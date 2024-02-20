@@ -17,6 +17,10 @@ import * as Yup from 'yup';
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { DropzoneArea } from 'material-ui-dropzone';
+import { toast } from "react-hot-toast";
+import useAxiosPrivate from '@hooks/useAxiosPrivate';
+import { catchError } from "@utils/catchError";
+
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required("Type is required"),
@@ -118,6 +122,7 @@ export default function Listings() {
         formState: { errors },
         handleSubmit,
         reset,
+        getValues,
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues,
@@ -170,11 +175,33 @@ export default function Listings() {
         setCompleted({});
     };
 
-    const onSubmit = () => {
 
-    }
+    const [photos, setPhotos] = useState([]);
 
+    const api = useAxiosPrivate();
+    const [gender, setGender] = useState('');
+    const [accommodationType, setAccommodationType] = useState('');
+    const [sharing, setSharing] = useState('');
+    const [facilityType, setFacilityType] = useState('');
+    const [amenities, setAmenities] = useState('');
 
+    const handleChange = (event, setState) => {
+        setState(event.target.value);
+    };
+    const [open, setOpen] = React.useState(false);
+    const [Files, SetFiles] = React.useState([])
+    const [submitting, setSubmitting] = React.useState(null)
+    const handleOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleDropzoneChange = (files) => {
+        setPhotos([...photos, ...files]);
+    };
+    const onSubmit = () => { }
     const [propertyFormData, setPropertyFormData] = useState({
         type: '',
         name: '',
@@ -201,25 +228,55 @@ export default function Listings() {
             safety: 0
         }
     });
+    const SubmitData = async () => {
+        try {
+            const uploadedPhotoUrls = [];
+
+            setSubmitting(true)
+            for (const file of photos) {
+                const formData2 = new FormData();
+                formData2.append('file', file);
+                formData2.append('upload_preset', 'jkcrcc6s');
+
+                const response = await fetch(
+                    'https://api.cloudinary.com/v1_1/doz6iabbi/upload',
+                    {
+                        method: 'POST',
+                        body: formData2,
+                    }
+                );
+                const data = await response.json();
+                const fileLink = data.secure_url;
+                uploadedPhotoUrls.push(fileLink);
+            }
+
+            const formData = getValues();
+            const obj = {
+                ...formData,
+                photos: uploadedPhotoUrls,
+            };
 
 
+            const response = await api.post("http://localhost:4000/api/user/PostProperty", obj);
+            const data = response.data;
+            setPropertyFormData(data.property);
 
-    const [gender, setGender] = useState('');
-    const [accommodationType, setAccommodationType] = useState('');
-    const [sharing, setSharing] = useState('');
-    const [facilityType, setFacilityType] = useState('');
-    const [amenities, setAmenities] = useState('');
+            if (data) {
+                SetFiles([])
+                setPhotos([])
+                handleClose()
+                setSubmitting(false)
+                reset(defaultValues);
+                toast.success('Successfully created your property!')
+            }
 
-    const handleChange = (event, setState) => {
-        setState(event.target.value);
+
+        } catch (error) {
+            setPropertyFormData(null);
+            toast.error(error.message)
+        }
     };
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => {
-        setOpen(true);
-    };
-    const handleClose = () => {
-        setOpen(false);
-    };
+
 
     const PropertyForm = (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -240,9 +297,9 @@ export default function Listings() {
                                     error={!!errors.type}
                                     helperText={errors?.type?.message}
                                 >
-                                    <MenuItem value="hostel">Hostel</MenuItem>
-                                    <MenuItem value="pg">PG</MenuItem>
-                                    <MenuItem value="flat">Flat</MenuItem>
+                                    <MenuItem value="Hostel">Hostel</MenuItem>
+                                    <MenuItem value="PG">PG</MenuItem>
+                                    <MenuItem value="Flat">Flat</MenuItem>
                                 </Select>
                             </FormControl>
                         )}
@@ -363,15 +420,16 @@ export default function Listings() {
                             <FormControl fullWidth>
                                 <InputLabel style={{ marginTop: '-5px' }}>Gender</InputLabel>
                                 <Select
-                                    {...field}
+                                    {...field} s
                                     labelId="gender-label"
                                     id="gender"
                                     size='small'
                                     error={!!errors?.gender}
                                     helperText={errors?.gender?.message}
                                 >
-                                    <MenuItem value="male">Male</MenuItem>
-                                    <MenuItem value="female">Female</MenuItem>
+                                    <MenuItem value="Boys">Boys</MenuItem>
+                                    <MenuItem value="Girls">Girls</MenuItem>
+                                    <MenuItem value="Boys&Girls">Boys&Girls</MenuItem>
                                 </Select>
                             </FormControl>
                         )}
@@ -466,13 +524,15 @@ export default function Listings() {
     )
 
     const UploadPhotos = (
-        <Box>
+        <Box >
             <DropzoneArea
                 acceptedFiles={['image/jpeg', 'image/png']}
-                maxFileSize={3000000} // 3 MB in bytes
+                maxFileSize={3000000}
                 filesLimit={4}
                 dropzoneText={"Drag and drop an image here or click"}
-                onChange={(files) => console.log('Files:', files)} />
+                onChange={handleDropzoneChange}
+            />
+            <Grid item xs={2}><Button variant='contained' onClick={() => { SubmitData() }}>Submit</Button></Grid>
         </Box>
     )
 
@@ -612,6 +672,8 @@ export default function Listings() {
 
                 </Box>
             </Modal>
+
+            
         </Grid>
     )
 }
