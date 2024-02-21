@@ -26,7 +26,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { Location, HomeIcon } from '@assets/icons';
-
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required("Type is required"),
@@ -550,7 +550,7 @@ export default function Listings() {
     const [pageCount, setPageCount] = React.useState(0);
     const [properties, setProperties] = React.useState([])
     const itemsPerPage = 6;
-
+    const nav = useNavigate()
 
     const [page, setPage] = React.useState(1);
 
@@ -646,7 +646,7 @@ export default function Listings() {
                         </Grid>
                     </CardContent>
                     <CardActions>
-                        <Button variant='contained' size="small">Learn more</Button>
+                        <Button variant='contained' size="small" onClick={()=>{nav(`/user/listings/${item._id}`)}}>Learn more</Button>
                         <Button size="small">Learn More</Button>
                     </CardActions>
                 </Card>
