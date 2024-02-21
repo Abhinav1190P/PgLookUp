@@ -25,6 +25,8 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import { Location, HomeIcon } from '@assets/icons';
+
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required("Type is required"),
@@ -558,7 +560,6 @@ export default function Listings() {
     };
 
     React.useEffect(() => {
-        console.log(page)
         const FetchProperties = async () => {
             const response = await api.get(`http://localhost:4000/api/user/GetProperties?page=${page}&pageSize=${itemsPerPage}`);
             const data = response.data;
@@ -570,9 +571,88 @@ export default function Listings() {
         FetchProperties();
     }, [page, itemsPerPage]);
 
-    console.log(page)
-
     const StepComponents = [PropertyForm, UploadPhotos];
+
+    const PropertyCard = ({ item }, i) => {
+
+        return (
+            <Grid item xs={4} key={i}>
+                <Card key={i} sx={{ maxWidth: 395 }}>
+                    <CardMedia
+                        component="img"
+                        alt="green iguana"
+                        height="170"
+                        image={item.photos[0]}
+                    />
+                    <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                            {item?.name}
+                        </Typography>
+                        <Typography
+                            sx={{
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                WebkitLineClamp: 2,
+                            }}
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            {item.description}
+                        </Typography>
+                        <Grid pt={1} container alignItems="center" spacing={1}>
+                            <Grid item>
+                                <Location />
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant="body2" component="div">
+                                    {item?.location?.city}
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <HomeIcon />
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant="body2" component="div">
+                                    {item?.type}
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant='h6' component='div'>For:</Typography>
+                            </Grid>
+                            <Grid item> <Typography gutterBottom variant="body1" component="div">
+                                {" "} {item?.gender}
+                            </Typography></Grid>
+                        </Grid>
+                        <Grid pt={1} container alignItems="center" spacing={1}>
+                            <Grid item>
+                                <Typography gutterBottom variant='h6' component='div'>Owner: </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant="body2" component="div">
+                                    {item?.owner?.name}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Grid pt={1} container alignItems="center" spacing={1}>
+                            <Grid item>
+                                <Typography gutterBottom variant='h6' component='div'>Starting price {"(for one)"}: </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant="body2" component="div">
+                                    {item?.rent?.single}$
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                    <CardActions>
+                        <Button variant='contained' size="small">Learn more</Button>
+                        <Button size="small">Learn More</Button>
+                    </CardActions>
+                </Card>
+            </Grid>
+        );
+    }
 
     return (
         <Grid container spacing={2}>
@@ -711,30 +791,14 @@ export default function Listings() {
             </Modal>
 
             <Grid container>
-                <Grid item xs={12}>
-                    <div className="cards-container">
-                        <Card sx={{ maxWidth: 345 }}>
-                            <CardMedia
-                                component="img"
-                                alt="green iguana"
-                                height="140"
-                                image="/static/images/cards/contemplative-reptile.jpg"
-                            />
-                            <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    Lizard
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Lizards are a widespread group of squamate reptiles, with over 6,000
-                                    species, ranging across all continents except Antarctica
-                                </Typography>
-                            </CardContent>
-                            <CardActions>
-                                <Button size="small">Share</Button>
-                                <Button size="small">Learn More</Button>
-                            </CardActions>
-                        </Card>
-                    </div>
+                <Grid container pl={5} pt={5} spacing={8}>
+                    {properties.length > 0 ? (
+                        properties.map((item, i) => (
+                            <PropertyCard item={item} i={i} />
+                        ))
+                    ) : (
+                        <div>No properties found</div>
+                    )}
                 </Grid>
                 <Grid item xs={12}>
                     <div className="pagination-container">
