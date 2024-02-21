@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -19,8 +19,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { DropzoneArea } from 'material-ui-dropzone';
 import { toast } from "react-hot-toast";
 import useAxiosPrivate from '@hooks/useAxiosPrivate';
-import { catchError } from "@utils/catchError";
-
+import ReactPaginate from 'react-paginate';
+import './pagination.css'
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required("Type is required"),
@@ -131,7 +135,6 @@ export default function Listings() {
     const totalSteps = () => {
         return steps.length;
     };
-    console.log(errors)
 
     const completedSteps = () => {
         return Object.keys(completed).length;
@@ -191,9 +194,13 @@ export default function Listings() {
     const [open, setOpen] = React.useState(false);
     const [Files, SetFiles] = React.useState([])
     const [submitting, setSubmitting] = React.useState(null)
+
+
     const handleOpen = () => {
         setOpen(true);
     };
+
+
     const handleClose = () => {
         setOpen(false);
     };
@@ -536,7 +543,37 @@ export default function Listings() {
         </Box>
     )
 
+
+    const [itemOffset, setItemOffset] = React.useState(0);
+    const [pageCount, setPageCount] = React.useState(0);
+    const [properties, setProperties] = React.useState([])
+    const itemsPerPage = 6;
+
+
+    const [page, setPage] = React.useState(1);
+
+
+    const handlePageClick = (selectedPage) => {
+        setPage(selectedPage.selected + 1);
+    };
+
+    React.useEffect(() => {
+        console.log(page)
+        const FetchProperties = async () => {
+            const response = await api.get(`http://localhost:4000/api/user/GetProperties?page=${page}&pageSize=${itemsPerPage}`);
+            const data = response.data;
+            console.log(data);
+            setProperties(data?.properties);
+            setPageCount(data?.totalPages);
+        };
+
+        FetchProperties();
+    }, [page, itemsPerPage]);
+
+    console.log(page)
+
     const StepComponents = [PropertyForm, UploadPhotos];
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={6} md={8}>
@@ -673,7 +710,53 @@ export default function Listings() {
                 </Box>
             </Modal>
 
-            
+            <Grid container>
+                <Grid item xs={12}>
+                    <div className="cards-container">
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardMedia
+                                component="img"
+                                alt="green iguana"
+                                height="140"
+                                image="/static/images/cards/contemplative-reptile.jpg"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Lizard
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Lizards are a widespread group of squamate reptiles, with over 6,000
+                                    species, ranging across all continents except Antarctica
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
+                                <Button size="small">Share</Button>
+                                <Button size="small">Learn More</Button>
+                            </CardActions>
+                        </Card>
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div className="pagination-container">
+                        <ReactPaginate
+                            breakLabel="..."
+                            nextLabel=">"
+                            onPageChange={handlePageClick}
+                            pageRangeDisplayed={5}
+                            pageCount={pageCount}
+                            previousLabel="<"
+                            renderOnZeroPageCount={null}
+                            containerClassName="pagination"
+                            pageLinkClassName="page-num"
+                            previousLinkClassName="page-num"
+                            nextLinkClassName="page-num"
+                            activeLinkClassName="active"
+                        />
+                    </div>
+                </Grid>
+            </Grid>
+
+
         </Grid>
     )
 }

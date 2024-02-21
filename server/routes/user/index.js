@@ -8,4 +8,5 @@ router.use("/profile", userController.profile);
 
 router.use("/PostProperty", userController.PostProperty)
 
+router.use("/GetProperties", userController.GetPropertyByPage);
 module.exports = router;

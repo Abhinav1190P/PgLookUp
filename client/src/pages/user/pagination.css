@@ -1,0 +1,47 @@
+.cards-container {
+  height: 120vh;
+  overflow-y: auto;
+  padding: 2rem;
+  /* Add scroll if content exceeds container height */
+  /* Add any other styles for the cards container */
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px; /* Adjust as needed */
+}
+
+.pagination {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .page-num {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-decoration: none;
+    color: #333;
+  }
+  
+  .active {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .page-num:hover {
+    background-color: #f2f2f2;
+  }
+  
+  .previous,
+  .next {
+    margin: 0 10px;
+    cursor: pointer;
+  }
+  
