@@ -188,11 +188,14 @@ export default function Listings() {
     const [accommodationType, setAccommodationType] = useState('');
     const [sharing, setSharing] = useState('');
     const [facilityType, setFacilityType] = useState('');
-    const [amenities, setAmenities] = useState('');
+
 
     const handleChange = (event, setState) => {
         setState(event.target.value);
     };
+
+
+
     const [open, setOpen] = React.useState(false);
     const [Files, SetFiles] = React.useState([])
     const [submitting, setSubmitting] = React.useState(null)
@@ -240,9 +243,10 @@ export default function Listings() {
     const SubmitData = async () => {
         try {
             const uploadedPhotoUrls = [];
-
+            const uniqueSet = new Set(photos);
+            const arrayWithoutDuplicates = Array.from(uniqueSet);
             setSubmitting(true)
-            for (const file of photos) {
+            for (const file of arrayWithoutDuplicates) {
                 const formData2 = new FormData();
                 formData2.append('file', file);
                 formData2.append('upload_preset', 'jkcrcc6s');
@@ -495,7 +499,7 @@ export default function Listings() {
                                     helperText={errors?.facility_type?.message}
                                 >
                                     <MenuItem value="Regular">Regular</MenuItem>
-                                    <MenuItem value="Cooler">Female</MenuItem>
+                                    <MenuItem value="Female">Female</MenuItem>
                                     <MenuItem value="AC">AC</MenuItem>
                                     <MenuItem value="Balcony">Balcony</MenuItem>
                                 </Select>
@@ -559,17 +563,54 @@ export default function Listings() {
         setPage(selectedPage.selected + 1);
     };
 
+
+    const [filteredProperties, setFilteredProperties] = useState([]);
+    const [filters, setFilters] = useState({
+        gender: '',
+        accommodationType: '',
+        facilityType: '',
+    });
+
+    const handleFilterChange = (filterName, value) => {
+
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [filterName]: value,
+        }));
+    };
+
+
+    useEffect(() => {
+
+        const filtered = properties.filter(property => {
+            return (
+                (filters.gender === '' || property.gender === filters.gender) &&
+                (filters.accommodationType === '' || property.type === filters.accommodationType) &&
+                (filters.facilityType === '' || property.facility_type === filters.facilityType)
+            );
+        });
+
+        setFilteredProperties(filtered);
+
+    }, [filters, properties]);
+
+
+    console.log(filteredProperties)
+
     React.useEffect(() => {
         const FetchProperties = async () => {
             const response = await api.get(`http://localhost:4000/api/user/GetProperties?page=${page}&pageSize=${itemsPerPage}`);
             const data = response.data;
-            console.log(data);
+
             setProperties(data?.properties);
             setPageCount(data?.totalPages);
+
+            setFilteredProperties(data?.properties);
         };
 
         FetchProperties();
     }, [page, itemsPerPage]);
+
 
     const StepComponents = [PropertyForm, UploadPhotos];
 
@@ -646,7 +687,7 @@ export default function Listings() {
                         </Grid>
                     </CardContent>
                     <CardActions>
-                        <Button variant='contained' size="small" onClick={()=>{nav(`/user/listings/${item._id}`)}}>Learn more</Button>
+                        <Button variant='contained' size="small" onClick={() => { nav(`/user/listings/${item._id}`) }}>Learn more</Button>
                         <Button size="small">Learn More</Button>
                     </CardActions>
                 </Card>
@@ -678,10 +719,11 @@ export default function Listings() {
                                 value={gender}
                                 size='small'
                                 style={{ borderRadius: '20px', width: '100%' }} // Set width to 100%
-                                onChange={(event) => handleChange(event, setGender)}
+                                onChange={(event) => handleFilterChange('gender', event.target.value)}
                             >
-                                <MenuItem value="male">Male</MenuItem>
-                                <MenuItem value="female">Female</MenuItem>
+                                <MenuItem value="Boys">Boys</MenuItem>
+                                <MenuItem value="Girls">Girls</MenuItem>
+                                <MenuItem value="Boys&Girls">Boys&Girls</MenuItem>
                             </Select>
                         </FormControl>
                         <FormControl fullWidth>
@@ -692,25 +734,11 @@ export default function Listings() {
                                 value={accommodationType}
                                 size='small'
                                 style={{ borderRadius: '20px', width: '100%' }}
-                                onChange={(event) => handleChange(event, setAccommodationType)}
+                                onChange={(event) => handleFilterChange('accommodationType', event.target.value)}
+
                             >
-                                <MenuItem value="hostel">Hostel</MenuItem>
-                                <MenuItem value="pg">PG</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel style={{ marginTop: '-6px' }} id="sharing-label">Sharing</InputLabel>
-                            <Select
-                                labelId="sharing-label"
-                                id="sharing"
-                                value={sharing}
-                                size='small'
-                                style={{ borderRadius: '20px', width: '100%' }}
-                                onChange={(event) => handleChange(event, setSharing)}
-                            >
-                                <MenuItem value="single">Single</MenuItem>
-                                <MenuItem value="double">Double</MenuItem>
-                                <MenuItem value="triple">Triple</MenuItem>
+                                <MenuItem value="Hostel">Hostel</MenuItem>
+                                <MenuItem value="PG">PG</MenuItem>
                             </Select>
                         </FormControl>
                         <FormControl fullWidth>
@@ -721,29 +749,16 @@ export default function Listings() {
                                 value={facilityType}
                                 size='small'
                                 style={{ borderRadius: '20px', width: '100%' }}
-                                onChange={(event) => handleChange(event, setFacilityType)}
-                            >
-                                <MenuItem value="basic">Basic</MenuItem>
-                                <MenuItem value="standard">Standard</MenuItem>
-                                <MenuItem value="premium">Premium</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel style={{ marginTop: '-6px' }} id="amenities-label">Amenities</InputLabel>
-                            <Select
-                                labelId="amenities-label"
-                                id="amenities"
-                                value={amenities}
-                                size='small'
-                                style={{ borderRadius: '20px', width: '100%' }}
+                                onChange={(event) => handleFilterChange('facilityType', event.target.value)}
 
-                                onChange={(event) => handleChange(event, setAmenities)}
                             >
-                                <MenuItem value="wifi">Wi-Fi</MenuItem>
-                                <MenuItem value="ac">AC</MenuItem>
-                                <MenuItem value="food">Food</MenuItem>
+                                <MenuItem value="Regular">Regular</MenuItem>
+                                <MenuItem value="Female">Female</MenuItem>
+                                <MenuItem value="AC">AC</MenuItem>
+                                <MenuItem value="Balcony">Balcony</MenuItem>
                             </Select>
                         </FormControl>
+
 
                     </Stack>
                 </Item>
@@ -792,12 +807,12 @@ export default function Listings() {
 
             <Grid container>
                 <Grid container pl={5} pt={5} spacing={8}>
-                    {properties.length > 0 ? (
-                        properties.map((item, i) => (
+                    {filteredProperties.length > 0 ? (
+                        filteredProperties.map((item, i) => (
                             <PropertyCard item={item} i={i} />
                         ))
                     ) : (
-                        <div>No properties found</div>
+                        <Grid item xs={12}>No properties found</Grid>
                     )}
                 </Grid>
                 <Grid item xs={12}>

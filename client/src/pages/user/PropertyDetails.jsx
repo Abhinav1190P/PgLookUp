@@ -17,6 +17,8 @@ export default function PropertyDetails() {
     const handleImageChange = (index) => {
         setCurrentImageIndex(index);
     };
+
+    
     useEffect(() => {
         const fetchSingleProperty = async () => {
             try {
@@ -36,7 +38,7 @@ export default function PropertyDetails() {
     if (loading) {
         return <div>Loading...</div>;
     }
-
+    
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>
