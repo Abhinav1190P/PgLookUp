@@ -11,4 +11,6 @@ router.use("/PostProperty", userController.PostProperty)
 router.use("/GetProperties", userController.GetPropertyByPage);
 
 router.use("/GetSingleProperty", userController.GetSingleProperty)
+
+router.use("/SubmitContactForm", userController.SubmitContactForm)
 module.exports = router;

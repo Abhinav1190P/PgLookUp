@@ -530,7 +530,7 @@ export default function Listings() {
                     />
                 </Grid>
                 {activeStep === steps.length ? (<Grid item xs={2}>  <Button variant='contained' type="submit">Submit</Button></Grid>) : (
-                    <Grid item xs={2}>  <Button variant='contained' onClick={() => { /* errors ? null :  */handleNext() }} type="submit">Next</Button></Grid>
+                    <Grid item xs={2}>  <Button variant='contained' onClick={() => { getValues().name !== '' ? handleNext():null  }} type="submit">Next</Button></Grid>
                 )}
 
                 <Grid item xs={1}><Button onClick={handleClose}>Close</Button></Grid>
@@ -822,7 +822,10 @@ export default function Listings() {
                             </Box>
                         </React.Fragment>
                     ) : (
-                        StepComponents[activeStep]
+                        submitting ?
+                            <Grid>
+                                Submitting...
+                            </Grid> : StepComponents[activeStep]
                     )}
 
 

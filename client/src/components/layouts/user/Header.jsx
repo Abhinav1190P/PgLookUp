@@ -76,7 +76,7 @@ function Header() {
       {/* Navigation Links */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Button color="inherit" onClick={handleListPropertyClick}>List Your Property</Button>
-        
+        <Button color="inherit" onClick={()=>{nav('/user/contact')}}>Contact</Button>
         <Button color="inherit" onClick={handleOurOfficesClick}>Our Offices</Button>
       </Box>
 

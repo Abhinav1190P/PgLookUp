@@ -1,5 +1,6 @@
 const Auth = require("../models/Auth");
 const Property = require('../models/Property')
+const Contact = require('../models/Contacts')
 const profile = async (req, res, next) => {
   try {
     const user = req.user;
@@ -66,5 +67,16 @@ const GetSingleProperty = async (req, res, next) => {
   }
 };
 
+const SubmitContactForm = async (req, res, next) => {
+  try {
+    const contactinfo = req.body;
+    const data = await Contact.create(contactinfo)
+    return res.status(200).json({ property: data, message: "Submitted!" });
 
-module.exports = { profile, PostProperty, GetPropertyByPage,GetSingleProperty };
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+module.exports = { profile, PostProperty, GetPropertyByPage, GetSingleProperty, SubmitContactForm };
