@@ -9,6 +9,8 @@ import propertyImage from "assets/images/property.jpg";
 import FeaturedPost from "./FeaturedPGS";
 import Grid from "@mui/material/Grid";
 import Footer from "./Footer";
+import Section1 from "./section1";
+
 
 const useStyles = makeStyles((theme) => ({
   parentContainer: {
@@ -71,6 +73,7 @@ const Profile = () => {
   }, []);
   const classes = useStyles();
 
+
   const featuredPosts = [
     {
       title: 'Best Rated Hostels',
@@ -111,7 +114,7 @@ const Profile = () => {
           <FeaturedPost key={post.title} post={post} />
         ))}
       </Grid>
-
+      <Section1 />
       <Footer
         title="PgLookUp"
         description="All rights reserved"

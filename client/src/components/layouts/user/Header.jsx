@@ -61,9 +61,7 @@ function Header() {
     nav('/user/listings')
   }
 
-  const handleSelectCityClick = () => {
 
-  }
 
 
   const handleOurOfficesClick = () => {}
@@ -78,7 +76,7 @@ function Header() {
       {/* Navigation Links */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Button color="inherit" onClick={handleListPropertyClick}>List Your Property</Button>
-        <Button color="inherit" onClick={handleSelectCityClick}>Select Your City</Button>
+        
         <Button color="inherit" onClick={handleOurOfficesClick}>Our Offices</Button>
       </Box>
 

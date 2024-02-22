@@ -27,6 +27,9 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { Location, HomeIcon } from '@assets/icons';
 import { useNavigate } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar'
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required("Type is required"),
@@ -694,6 +697,28 @@ export default function Listings() {
             </Grid>
         );
     }
+    const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+
+    const triggerCloseWithFormActive = () => {
+        if (window.confirm('Are you sure you want to close?')) {
+            handleConfirm();
+        } else {
+            handleCancel();
+        }
+
+    };
+
+    const handleConfirm = () => {
+        reset()
+        setPhotos([])
+        handleClose();
+    };
+
+    const handleCancel = () => {
+        return;
+    };
+
 
     return (
         <Grid container spacing={2}>
@@ -771,7 +796,7 @@ export default function Listings() {
             </Grid>
             <Modal
                 open={open}
-                onClose={handleClose}
+                onClose={triggerCloseWithFormActive}
                 aria-labelledby="child-modal-title"
                 aria-describedby="child-modal-description"
             >
