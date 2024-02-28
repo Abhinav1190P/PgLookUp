@@ -46,13 +46,13 @@ This project is a property listing website that allows property owners to list t
 1. Clone the repository:
 
    ```
-   git clone https://github.com/your_username/property-listing.git
+   git clone [https://github.com/Abhinav1190P/PgLookUp](https://github.com/Abhinav1190P/PgLookUp)
    ```
 
 2. Navigate to the project directory:
 
    ```
-   cd property-listing
+   cd [property-listing](https://github.com/Abhinav1190P/PgLookUp)
    ```
 
 3. Install dependencies:
@@ -79,4 +79,3 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ---
 
-Feel free to replace the placeholder screenshot paths with actual paths to your project's screenshots.
