@@ -1,5 +1,3 @@
-Certainly! Here's an updated README with a section for screenshots:
-
 ---
 
 # Property Listing Website
